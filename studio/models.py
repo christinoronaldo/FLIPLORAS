@@ -8,11 +8,12 @@ class Video_Final(models.Model):
 
     def __str__(self):
         return self.title
-class Video(models.Model):
-    title = models.CharField(max_length=255)
-    file = models.FileField(upload_to='videos/')
-    duration = models.FloatField()
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+#class Video(models.Model):
+#    title = models.CharField(max_length=255)
+#    file = models.FileField(upload_to='videos/')
+#    duration = models.FloatField()
+#    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
 class Frame(models.Model):
