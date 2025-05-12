@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flipbook Video Editor</title>
+  <style>
+    /* Layout Grid */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #000;
+      color: #fff;
+      height: 100vh;
+      display: grid;
+      grid-template-areas:
+        "header header header"
+        "tools upload main"
+        "tools upload timeline";
+      grid-template-rows: 60px 1fr 120px;
+      grid-template-columns: 60px 250px 1fr;
+    }
+  
+    .header {
+      grid-area: header;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      background-color: #111;
+      border-bottom: 1px solid #333;
+    }
+  
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffcc00;
+      margin-right: 20px;
+    }
+  
+    .project-name {
+      background: transparent;
+      border: 1px solid #333;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      width: 200px;
+    }
+  
+    .export-btn {
+      margin-left: auto;
+      background-color: #ffcc00;
+      color: #000;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  
+    .tools-panel {
+      grid-area: tools;
+      background-color: #0a0a0a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+      border-right: 1px solid #333;
+    }
+  
+    .tool-icon {
+      width: 40px;
+      height: 40px;
+      background-color: #222;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  
+    .tool-icon:hover {
+      background-color: #333;
+    }
+  
+    .tool-icon.active {
+      background-color: #ffcc00;
+      color: #000;
+    }
+  
+    .upload-panel {
+      grid-area: upload;
+      background-color: #111;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #333;
+      padding: 20px;
+    }
+  
+    .sidebar-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #ffcc00;
+    }
+  
+    .import-btn {
+      background-color: #333;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      font-size: 14px;
+      text-align: center;
+    }
+  
+    .module-selection {
+      margin-bottom: 15px;
+      display: none;
+    }
+  
+    .module-options {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+  
+    .module-option {
+      flex: 1;
+      padding: 8px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  
+    .module-option.active {
+      background-color: #ffcc00;
+      color: #000;
+    }
+  
+    /* Main Content Styling */
+    .container {
+      grid-area: main;
+      padding: 20px;
+      overflow-y: auto;
+    }
+  
+    .controls button {
+      margin: 5px;
+      padding: 8px 12px;
+    }
+  
+    #statusMessage {
+      margin-top: 20px;
+      font-size: 18px;
+      color:  #ffcc00;
+    }
+  
+    #frameDisplay {
+      display: none;
+      width: 600px;
+      margin: 0px auto;
+    }
+  
+    #frameDisplay img {
+      width: 100%;
+    }
+  
+    .seekbar-container {
+      margin-top: 20px;
+      display: none;
+      user-select: none;
+    }
+  
+    .seekbar-track {
+      position: relative;
+      width: 600px;
+      height: 20px;
+      background: #444;
+      border-radius: 10px;
+      margin: 10px auto;
+    }
+  
+    .trim-range {
+      position: absolute;
+      height: 100%;
+      background: rgba(0, 255, 0, 0.4);
+      border: 1px solid #0f0;
+      border-radius: 10px;
+    }
+  
+    .handle {
+      position: absolute;
+      width: 12px;
+      height: 30px;
+      background: #0f0;
+      top: -5px;
+      cursor: ew-resize;
+      border-radius: 3px;
+      z-index: 2;
+    }
+  
+    .handle.end {
+      background: #f00;
+    }
+  
+    .playhead {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background: #00f;
+      top: 0;
+      z-index: 1;
+    }
+  
+    .time-labels {
+      display: flex;
+      justify-content: space-between;
+      width: 600px;
+      margin: 0 auto;
+    }
+  
+    button {
+      padding: 10px 10px;
+      background:  #ffcc00;
+      border: none;
+      color: white;
+      font-size: 8px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  
+    button:hover {
+      background:  #ffcc00;
+    }
+  </style>  
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Flipbook Editor</div>
+        <input class="project-name" placeholder="Project Name" />
+        <button class="export-btn">Export</button>
+      </div>
+    
+      <div class="tools-panel">
+        <div class="tool-icon active">✂</div>
+        <div class="tool-icon">🎨</div>
+        <div class="tool-icon">🎞</div>
+      </div>
+    
+      <div class="upload-panel">
+        <div class="sidebar-title">Upload & Settings</div>
+        <input type="file" id="videoInput" accept="video/*" class="import-btn" />
+        <label for="frameCount">Frame Count:</label>
+        <select id="frameCount" class="import-btn">
+          <option value="120">120 Frames</option>
+          <option value="180">180 Frames</option>
+          <option value="240">240 Frames</option>
+        </select>
+      </div>
+  <div class="container">
+    <video id="video" width="600" controls></video>
+
+    <div id="frameDisplay">
+      <img id="frameImage" src="">
+      <div id="frameNumberDisplay" style="margin-top:10px; font-size:20px; color:#333;"></div>
+    </div>
+
+    <div class="controls">
+      <button onclick="rewind()">⏪ Backward</button>
+      <button onclick="play()">▶️ Play</button>
+      <button onclick="forward()">⏩ Forward</button>
+    </div>
+
+    <div class="seekbar-container" id="seekbarContainer">
+      <div class="seekbar-track" id="seekbar-track">
+        <div class="trim-range" id="trim-range"></div>
+        <div class="handle start" id="start-handle"></div>
+        <div class="handle end" id="end-handle"></div>
+        <div class="playhead" id="playhead"></div>
+      </div>
+      <div class="time-labels">
+        <span>Trim Start: <span id="trim-start-label">0.00s</span></span>
+        <span>Trim End: <span id="trim-end-label">0.00s</span></span>
+      </div>
+      <button id="send-trim-data">Send Trim Data</button>
+    </div>
+
+    <div id="statusMessage"></div>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const videoInput = document.getElementById('videoInput');
+    const frameDisplay = document.getElementById('frameDisplay');
+    const frameImage = document.getElementById('frameImage');
+    const statusMessage = document.getElementById('statusMessage');
+    const frameCountSelect = document.getElementById('frameCount');
+
+    const seekbarContainer = document.getElementById("seekbarContainer");
+    const seekbarTrack = document.getElementById("seekbar-track");
+    const trimRange = document.getElementById("trim-range");
+    const startHandle = document.getElementById("start-handle");
+    const endHandle = document.getElementById("end-handle");
+    const playhead = document.getElementById("playhead");
+    const trimStartLabel = document.getElementById("trim-start-label");
+    const trimEndLabel = document.getElementById("trim-end-label");
+    const sendTrimBtn = document.getElementById("send-trim-data");
+
+    function enterFullscreen() {
+      const container = frameDisplay.style.display === 'block' ? frameDisplay : video;
+
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.webkitRequestFullscreen) { /* Safari */
+        container.webkitRequestFullscreen();
+      } else if (container.msRequestFullscreen) { /* IE11 */
+        container.msRequestFullscreen();
+      }
+    }
+
+    let isDraggingStart = false;
+    let isDraggingEnd = false;
+    let duration = 0;
+    let trimStart = 0;
+    let trimEnd = 0;
+
+    let selectedFile = null;
+    let frames = [];
+    let currentFrame = 0;
+    let intervalId = null;
+
+    videoInput.addEventListener('change', function (e) {
+      selectedFile = e.target.files[0];
+      if (selectedFile) {
+        const url = URL.createObjectURL(selectedFile);
+        video.src = url;
+        video.style.display = 'block';
+        frameDisplay.style.display = 'none';
+        submitVideo();
+      }
+    });
+
+    function toggleSeekbar() {
+      seekbarContainer.style.display = 'block';
+    }
+
+    let isPlaying = false;
+
+    function play() {
+      if (frames.length > 0) {
+        if (isPlaying) {
+          clearInterval(intervalId);
+          isPlaying = false;
+        } else {
+          currentFrame = 0;
+          video.style.display = 'none';
+          frameDisplay.style.display = 'block';
+          intervalId = setInterval(() => {
+            if (currentFrame >= frames.length) {
+              clearInterval(intervalId);
+              return;
+            }
+
+            frameImage.src = frames[currentFrame].src;
+            frameNumberDisplay.innerText = "Frame: " + frames[currentFrame].frame_number;
+            currentFrame++;
+          }, 33);
+          isPlaying = true;
+        }
+      } else {
+        frameDisplay.style.display = 'none';
+        video.style.display = 'block';
+        video.play();
+      }
+    }
+
+    function forward() {
+      if (currentFrame < frames.length - 1) {
+        clearInterval(intervalId);
+        isPlaying = false;
+        currentFrame++;
+        frameImage.src = frames[currentFrame].src;
+        frameNumberDisplay.innerText = "Frame: " + frames[currentFrame].frame_number;
+      }
+    }
+
+    function rewind() {
+      if (currentFrame > 0) {
+        clearInterval(intervalId);
+        isPlaying = false;
+        currentFrame--;
+        frameImage.src = frames[currentFrame].src;
+        frameNumberDisplay.innerText = "Frame: " + frames[currentFrame].frame_number;
+      }
+    }
+
+    function submitVideo() {
+      if (!selectedFile) return;
+
+      const formData = new FormData();
+      formData.append('video', selectedFile);
+      formData.append('frame_count', frameCountSelect.value);
+
+      statusMessage.textContent = "⏳ Uploading and processing video...";
+
+      fetch('http://127.0.0.1:8000/api/studio/', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.frames) {
+          frames = data.frames;
+          statusMessage.textContent = `✅ Received ${frames.length} frames. Ready to play.`;
+        } else {
+          statusMessage.textContent = "❌ No frames received.";
+        }
+      })
+      .catch(err => {
+        statusMessage.textContent = "❌ Upload failed. Please try again.";
+        console.error('Upload failed', err);
+      });
+    }
+
+    video.addEventListener("loadedmetadata", () => {
+      duration = video.duration;
+      trimEnd = duration;
+      trimEndLabel.textContent = `${trimEnd.toFixed(2)}s`;
+      updateHandles();
+    });
+
+    video.addEventListener("timeupdate", () => {
+      const percent = duration > 0 ? (video.currentTime / duration) * 100 : 0;
+      playhead.style.left = `${percent}%`;
+    });
+
+    function updateHandles() {
+      const startPercent = (trimStart / duration) * 100;
+      const endPercent = (trimEnd / duration) * 100;
+
+      startHandle.style.left = `${startPercent}%`;
+      endHandle.style.left = `${endPercent}%`;
+
+      trimRange.style.left = `${startPercent}%`;
+      trimRange.style.width = `${endPercent - startPercent}%`;
+
+      trimStartLabel.textContent = `${trimStart.toFixed(2)}s`;
+      trimEndLabel.textContent = `${trimEnd.toFixed(2)}s`;
+    }
+
+    function getTimeFromPosition(clientX) {
+      const rect = seekbarTrack.getBoundingClientRect();
+      const percent = (clientX - rect.left) / rect.width;
+      return Math.min(Math.max(percent * duration, 0), duration);
+    }
+
+    startHandle.addEventListener("mousedown", () => { isDraggingStart = true; });
+    endHandle.addEventListener("mousedown", () => { isDraggingEnd = true; });
+
+    document.addEventListener("mouseup", () => {
+      isDraggingStart = false;
+      isDraggingEnd = false;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDraggingStart && !isDraggingEnd) return;
+
+      const newTime = getTimeFromPosition(e.clientX);
+
+      if (isDraggingStart && newTime < trimEnd) {
+        trimStart = newTime;
+        updateHandles();
+      } else if (isDraggingEnd && newTime > trimStart) {
+        trimEnd = newTime;
+        updateHandles();
+      }
+    });
+
+    sendTrimBtn.addEventListener("click", () => {
+      const trimData = {
+        start: parseFloat(trimStart.toFixed(2)),
+        end: parseFloat(trimEnd.toFixed(2)),
+      };
+
+      console.log("Sending trim data:", trimData);
+
+      fetch("http://127.0.0.1:8000/api/trim/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(trimData),
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.trimmed_video_url) {
+          frameImage.src = data.trimmed_video_url; // Assuming the response contains a URL to the trimmed video
+          statusMessage.textContent = "✅ Trimmed video received and displayed.";
+        } else {
+          statusMessage.textContent = "❌ Failed to retrieve trimmed video.";
+        }
+        console.log("Server response:", data);
+      })
+      .catch((err) => {
+        statusMessage.textContent = "❌ Failed to send trim data.";
+        console.error("Error sending trim data:", err);
+      });
+    });
+  </script>
+</body>
+</html>
