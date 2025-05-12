@@ -65,10 +65,10 @@ WSGI_APPLICATION = 'FLIPLORA.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'studio_bd',
-        'USER': 'root',
-        'PASSWORD':'MSDthegod@123',
-        'HOST':'localhost',
+        'NAME': 'u932692832_uYX6p',
+        'USER': 'u932692832_bGsS5',
+        'PASSWORD':'LEDEep2SCg',
+        'HOST':'82.180.142.153',
         'PORT':'3306',
     }
 }
