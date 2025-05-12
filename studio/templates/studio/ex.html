@@ -408,7 +408,7 @@
 
       statusMessage.textContent = "⏳ Uploading and processing video...";
 
-      fetch('http://127.0.0.1:8000/api/studio/', {
+      fetch('http://fliploras.onrender.com/api/studio/', {
         method: 'POST',
         body: formData
       })
@@ -489,7 +489,7 @@
 
       console.log("Sending trim data:", trimData);
 
-      fetch("http://127.0.0.1:8000/api/trim/", {
+      fetch("http://fliploras.onrender.com/api/trim/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(trimData),
