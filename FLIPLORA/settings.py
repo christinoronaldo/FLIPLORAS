@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-c474onub@iqve6$p-so9_a_a$psecmrbz2tp0g2r5u=hne8-w#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["fliploras.onrender.com"]
 
 
 # Application definition
@@ -65,10 +65,10 @@ WSGI_APPLICATION = 'FLIPLORA.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'u932692832_uYX6p',
-        'USER': 'u932692832_bGsS5',
-        'PASSWORD':'LEDEep2SCg',
-        'HOST':'82.180.142.153',
+        'NAME': 'u932692832_fliplora_video',
+        'USER': 'u932692832_dharshan',
+        'PASSWORD':'10050601466@Hostinger',
+        'HOST':'srv878.hstgr.io',
         'PORT':'3306',
     }
 }
