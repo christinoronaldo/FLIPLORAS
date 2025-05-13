@@ -10,3 +10,4 @@ tzdata==2025.2
 wcwidth==0.2.13
 numpy==2.2.5
 pillow==11.2.1
+django-cors-headers==4.3.1
